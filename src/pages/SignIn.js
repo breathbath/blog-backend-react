@@ -5,63 +5,21 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {withStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import {withRouter} from 'react-router-dom';
+import {withRouter, Redirect, Link} from 'react-router-dom';
 import {apiMakePost} from "../components/ApiFetcher";
 import {hasValidToken, setToken} from "../components/TokenManager";
-import { Redirect } from "react-router-dom"
 import {getValidationErrorText, isFieldInvalid} from "../components/ErrorsProcessor";
 import FlashMessage from "../components/FlashMessage";
 import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
 import Recaptcha from "../components/Recaptcha";
-
-function MadeWithLove() {
-    return (
-        <Typography variant="body2" color="textSecondary" align="center">
-            {'Built with love by the '}
-            <Link color="inherit" href="https://material-ui.com/">
-                Material-UI
-            </Link>
-            {' team.'}
-        </Typography>
-    );
-}
-
-const styles = theme => ({
-    '@global': {
-        body: {
-            backgroundColor: theme.palette.common.white,
-        },
-    },
-    paper: {
-        marginTop: theme.spacing(8),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-        width: '100%', // Fix IE 11 issue.
-        marginTop: theme.spacing(1),
-    },
-    submit: {
-        margin: theme.spacing(3, 0, 2),
-    },
-    spinner: {
-        color: '#ffffff',
-        position: 'absolute',
-        left: "60%",
-    }
-});
+import CopyRight from "./CopyRight";
+import {loginFormStyles} from "../components/LoginFormStyles";
 
 class SignIn extends React.Component {
     constructor(props) {
@@ -123,7 +81,7 @@ class SignIn extends React.Component {
             );
     }
 
-    renderErrorFlash() {
+    renderFlash() {
         if (this.state.generalError !== "") {
             return (
                 <FlashMessage
@@ -133,11 +91,19 @@ class SignIn extends React.Component {
                 />
             );
         }
+        if (this.props.location.flashMessage) {
+            return (
+                <FlashMessage
+                    variant="success"
+                    message={this.props.location.flashMessage}
+                    autoHideDuration={4000}
+                />
+            );
+        }
         return null;
     }
 
     updateRecaptchaValue(token) {
-        console.log(token);
         this.setFormValue("recaptcha", token);
     }
 
@@ -150,7 +116,7 @@ class SignIn extends React.Component {
             <Container component="main" maxWidth="xs">
                 <CssBaseline/>
                 <div className={classes.paper}>
-                    {this.renderErrorFlash()}
+                    {this.renderFlash()}
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon/>
                     </Avatar>
@@ -207,19 +173,20 @@ class SignIn extends React.Component {
                         </Button>
                         <Grid container>
                             <Grid item>
-                                <Link href="#" variant="body2">
-                                    {"Don't have an account? Sign Up"}
+                                Don't have an account?&nbsp;
+                                <Link to="/register" variant="body2">
+                                    {"Sign Up"}
                                 </Link>
                             </Grid>
                         </Grid>
                     </form>
                 </div>
                 <Box mt={5}>
-                    <MadeWithLove/>
+                    <CopyRight/>
                 </Box>
             </Container>
         );
     }
 }
 
-export default withRouter(withStyles(styles)(SignIn));
+export default withRouter(withStyles(loginFormStyles)(SignIn));
