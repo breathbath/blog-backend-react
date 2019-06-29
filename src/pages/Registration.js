@@ -9,92 +9,26 @@ import Typography from '@material-ui/core/Typography';
 import {withStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {Link, withRouter} from 'react-router-dom';
-import {apiMakePost} from "../components/ApiFetcher";
 import {Redirect} from "react-router-dom"
 import {getValidationErrorText, isFieldInvalid} from "../components/ErrorsProcessor";
-import FlashMessage from "../components/FlashMessage";
 import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
 import Recaptcha from "../components/Recaptcha";
 import {loginFormStyles} from "../components/LoginFormStyles";
 import CopyRight from "./CopyRight";
-import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+import {ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+import Form from "../components/Form";
 
-class Registration extends React.Component {
+class Registration extends Form {
     constructor(props) {
         super(props);
-        this.state = {
-            form: {email: "", fullname: "", password: "", rpassword: ""},
-            generalError: "",
-            validationErrors: [],
-            operationSuccess: '',
-            loading: false
-        };
-
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.recaptcha = null;
-    }
-
-    setFormValue = (key, value) => {
-        let curFormValues = this.state.form;
-        curFormValues[key] = value;
-        this.setState({form: curFormValues});
-    };
-
-    handleInputChange(event) {
-        const target = event.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
-
-        this.setFormValue(name, value);
-    }
-
-    handleSubmit(event) {
-        this.setState({loading: true});
-        event.preventDefault();
-        apiMakePost("/api/register", this.state.form)
-            .then(
-                res => this.setState({operationSuccess: res.Success, loading: false}),
-                res => {
-                    this.recaptcha.reset();
-                    if (res.validationErrors && Object.keys(res.validationErrors).length) {
-                        let curState = {validationErrors: res.validationErrors, loading: false};
-                        if (isFieldInvalid("recaptcha", res.validationErrors)) {
-                            curState.generalError = getValidationErrorText("recaptcha", res.validationErrors);
-                        }
-                        this.setState(curState);
-                        return;
-                    }
-
-                    this.setState({generalError: res.error, loading: false});
-                }
-            );
-    }
-
-    renderErrorFlash() {
-        if (this.state.generalError !== "") {
-            return (
-                <FlashMessage
-                    variant="error"
-                    message={this.state.generalError}
-                    autoHideDuration={4000}
-                />
-            );
-        }
-        return null;
-    }
-
-        updateRecaptchaValue(token) {
-        this.setFormValue("recaptcha", token);
+        this.state.form = {email: "", fullname: "", password: "", rpassword: ""};
+        this.formAction =  "/api/register";
     }
 
     componentDidMount() {
-        // custom rule will have name 'isPasswordMatch'
         ValidatorForm.addValidationRule('isPasswordMatch', (value) => {
-            if (value !== this.state.form.password) {
-                return false;
-            }
-            return true;
+            console.log('lala');
+            return value === this.state.form.password;
         });
     }
 
@@ -103,17 +37,21 @@ class Registration extends React.Component {
         ValidatorForm.removeValidationRule('isPasswordMatch');
     }
 
+    submitCallback(res) {
+        this.setState({operationSuccess: res.success, loading: false});
+    }
+
     render() {
         if (this.state.operationSuccess !== '') {
-            return <Redirect to={{pathname: '/signin', flashMessage: this.state.operationSuccess }} />;
+            return <Redirect to={{pathname: '/signin', state: {flashMessage: this.state.operationSuccess}}}/>;
         }
         const {classes} = this.props;
-        const { email, fullname, password, rpassword } = this.state.form;
+        const {email, fullname, password, rpassword} = this.state.form;
         return (
             <Container component="main" maxWidth="xs">
                 <CssBaseline/>
                 <div className={classes.paper}>
-                    {this.renderErrorFlash()}
+                    {this.renderFlash()}
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon/>
                     </Avatar>
@@ -184,7 +122,8 @@ class Registration extends React.Component {
                             fullWidth
                             type="password"
                         />
-                        <Recaptcha ref={ref => this.recaptcha = ref} action="login" updateCallback={(token) => this.updateRecaptchaValue(token)} />
+                        <Recaptcha ref={ref => this.recaptcha = ref} action="login"
+                                   updateCallback={(token) => this.updateRecaptchaValue(token)}/>
                         <Button
                             type="submit"
                             fullWidth

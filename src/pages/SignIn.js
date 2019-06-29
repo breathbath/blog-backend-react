@@ -2,7 +2,6 @@ import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Grid from '@material-ui/core/Grid';
@@ -12,99 +11,32 @@ import Typography from '@material-ui/core/Typography';
 import {withStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {withRouter, Redirect, Link} from 'react-router-dom';
-import {apiMakePost} from "../components/ApiFetcher";
 import {hasValidToken, setToken} from "../components/TokenManager";
 import {getValidationErrorText, isFieldInvalid} from "../components/ErrorsProcessor";
-import FlashMessage from "../components/FlashMessage";
 import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
 import Recaptcha from "../components/Recaptcha";
 import CopyRight from "./CopyRight";
 import {loginFormStyles} from "../components/LoginFormStyles";
+import Form from "../components/Form";
+import {ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 
-class SignIn extends React.Component {
+class SignIn extends Form {
     constructor(props) {
         super(props);
-        this.state = {
-            form: {email: "", password: "", isRememberMe: false, recaptcha: ""},
-            generalError: "",
-            validationErrors: [],
-            isAuthorised: hasValidToken(),
-            loading: false
-        };
-
-        this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.recaptcha = null;
+        this.state.form = {email: "", password: "", isRememberMe: false, recaptcha: ""};
+        this.state.isAuthorised = hasValidToken();
+        this.formAction =  "/api/login";
     }
 
-    setFormValue = (key, value) => {
-        let curFormValues = this.state.form;
-        curFormValues[key] = value;
-        this.setState({form: curFormValues});
-    };
-
-    handleInputChange(event) {
-        const target = event.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
-
-        this.setFormValue(name, value);
-    }
-
-    handleSubmit(event) {
-        this.setState({loading: true});
-        event.preventDefault();
-        apiMakePost("/api/login", this.state.form)
-            .then(
-                res => {
-                    if (!res || !res.token) {
-                        this.recaptcha.reset();
-                        this.setState({generalError: "Invalid response format", loading: false});
-                        return;
-                    }
-
-                    setToken(res.token, this.state.form.isRememberMe);
-                    this.setState({isAuthorised: true, loading: false});
-                },
-                res => {
-                    this.recaptcha.reset();
-                    if (res.validationErrors && Object.keys(res.validationErrors).length) {
-                        let curState = {validationErrors: res.validationErrors, loading: false};
-                        if (isFieldInvalid("recaptcha", res.validationErrors)) {
-                            curState.generalError = getValidationErrorText("recaptcha", res.validationErrors);
-                        }
-                        this.setState(curState);
-                    } else {
-                        this.setState({generalError: res.error, loading: false});
-                    }
-                }
-            );
-    }
-
-    renderFlash() {
-        if (this.state.generalError !== "") {
-            return (
-                <FlashMessage
-                    variant="error"
-                    message={this.state.generalError}
-                    autoHideDuration={4000}
-                />
-            );
+    submitCallback(res) {
+        if (!res || !res.token) {
+            this.recaptcha.reset();
+            this.setState({generalError: "Invalid response format", loading: false});
+            return;
         }
-        if (this.props.location.flashMessage) {
-            return (
-                <FlashMessage
-                    variant="success"
-                    message={this.props.location.flashMessage}
-                    autoHideDuration={4000}
-                />
-            );
-        }
-        return null;
-    }
 
-    updateRecaptchaValue(token) {
-        this.setFormValue("recaptcha", token);
+        setToken(res.token, this.state.form.isRememberMe);
+        this.setState({isAuthorised: true, loading: false});
     }
 
     render() {
@@ -112,6 +44,7 @@ class SignIn extends React.Component {
             return <Redirect to='/admin'  />;
         }
         const {classes} = this.props;
+        const {email, password} = this.state.form;
         return (
             <Container component="main" maxWidth="xs">
                 <CssBaseline/>
@@ -123,34 +56,42 @@ class SignIn extends React.Component {
                     <Typography component="h1" variant="h5">
                         Sign in
                     </Typography>
-                    <form className={classes.form} onSubmit={this.handleSubmit}>
-                        <TextField
-                            error={isFieldInvalid("email", this.state.validationErrors)}
-                            variant="outlined"
-                            margin="normal"
+                    <ValidatorForm
+                        ref="form"
+                        onSubmit={this.handleSubmit}
+                        onError={errors => console.log(errors)}
+                    >
+                        <TextValidator
                             required
-                            fullWidth
-                            id="email"
+                            variant="outlined"
                             label="Email Address"
+                            onChange={this.handleInputChange}
                             name="email"
+                            id="email"
                             autoComplete="email"
-                            autoFocus
+                            value={email}
+                            validators={['required']}
+                            errorMessages={['This field is required']}
+                            error={isFieldInvalid("email", this.state.validationErrors)}
                             helperText={getValidationErrorText("email", this.state.validationErrors)}
-                            onChange={this.handleInputChange}
-                        />
-                        <TextField
-                            error={isFieldInvalid("password", this.state.validationErrors)}
-                            variant="outlined"
                             margin="normal"
-                            required
                             fullWidth
-                            name="password"
+                            autoFocus
+                        />
+                        <TextValidator
+                            required
+                            variant="outlined"
                             label="Password"
-                            type="password"
-                            id="password"
-                            helperText={getValidationErrorText("password", this.state.validationErrors)}
-                            autoComplete="current-password"
                             onChange={this.handleInputChange}
+                            name="password"
+                            value={password}
+                            validators={['required']}
+                            errorMessages={['This field is required']}
+                            error={isFieldInvalid("password", this.state.validationErrors)}
+                            helperText={getValidationErrorText("password", this.state.validationErrors)}
+                            margin="normal"
+                            fullWidth
+                            type="password"
                         />
                         <FormControlLabel
                             control={<Checkbox value="isRememberMe" name="isRememberMe" color="primary"
@@ -179,7 +120,7 @@ class SignIn extends React.Component {
                                 </Link>
                             </Grid>
                         </Grid>
-                    </form>
+                    </ValidatorForm>
                 </div>
                 <Box mt={5}>
                     <CopyRight/>

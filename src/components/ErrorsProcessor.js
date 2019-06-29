@@ -15,3 +15,13 @@ export function getValidationErrorText(fieldName, validationErrors) {
 
     return errorTexts.join(", ");
 }
+
+export function unsetValidationError(fieldName, validationErrors) {
+    if (!validationErrors.hasOwnProperty(fieldName)) {
+        return validationErrors;
+    }
+
+    delete validationErrors[fieldName];
+
+    return validationErrors;
+}
