@@ -16,8 +16,7 @@ export function getToken() {
  * @constructor
  */
 export function setToken(token, isRemembered) {
-    sessionStorage.removeItem("token");
-    localStorage.removeItem("token");
+    clearToken();
 
     if (isRemembered) {
         localStorage.setItem("token", token);
@@ -25,6 +24,11 @@ export function setToken(token, isRemembered) {
     }
 
     sessionStorage.setItem("token", token);
+}
+
+export function clearToken() {
+    sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
 }
 
 export function hasValidToken() {

@@ -6,6 +6,7 @@ import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
 import {hasValidToken} from "./components/TokenManager";
 import Registration from "./pages/Registration";
+import Logout from "./pages/Logout";
 
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
@@ -30,8 +31,10 @@ export default props => (
                 <PrivateRoute exact path='/admin/main' component={ Main } />
                 <PrivateRoute exact path='/admin/wizard' component={ Main } />
                 <PrivateRoute exact path='/admin/cards' component={ NotFound } />
+                <PrivateRoute exact path='/logout' component={ Logout } />
                 <LoginRoute exact path='/signin' component={ SignIn } />
                 <LoginRoute exact path='/register' component={ Registration } />
+                <Route path="*" exact={true} component={NotFound} />
             </Switch>
         </ScrollToTop>
     </HashRouter>

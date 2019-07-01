@@ -1,14 +1,17 @@
 import {getToken} from "./TokenManager";
 
-export function apiMakePost(uri, payload) {
+export function apiMakePost(uri, payload, isFormMultipart) {
+    let headers = {'Authorization': 'Bearer ' + getToken()};
+    if (!isFormMultipart) {
+        payload = JSON.stringify(payload);
+        headers['Content-Type'] = 'application/json';
+    }
+
     return new Promise((resolve, reject) => {
         fetch(process.env.REACT_APP_API_URL + uri, {
             method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + getToken()
-            },
-            body: JSON.stringify(payload)
+            headers: headers,
+            body: payload
         }).then(res => res.json(), () => {
             handlePromiseFailure(reject, resolve);
         })

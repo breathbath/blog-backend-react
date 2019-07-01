@@ -1,6 +1,6 @@
 import React from 'react';
 import {getValidationErrorText, isFieldInvalid, unsetValidationError} from "./ErrorsProcessor";
-import {apiMakePost} from "./ApiFetcher";
+import {apiMakePost} from "./HttpClient";
 import FlashMessage from "./FlashMessage";
 
 class Form extends React.Component {
@@ -70,29 +70,40 @@ class Form extends React.Component {
     }
 
     renderFlash() {
+        let errMsg = "";
+        let successMsg = "";
+        if (this.props.location && this.props.location.state && this.props.location.state.flashMessage) {
+            if (this.props.location.state.flashMessage.isError) {
+                errMsg = this.props.location.state.flashMessage.message;
+            } else {
+                successMsg = this.props.location.state.flashMessage.message;
+            }
+        }
+
+        if (this.state.operationSuccess && this.state.operationSuccess !== "") {
+            successMsg += this.state.operationSuccess;
+        }
+
         if (this.state.generalError !== "") {
+            errMsg += this.state.generalError;
+        }
+
+        if (errMsg !== "") {
             return (
                 <FlashMessage
                     variant="error"
-                    message={this.state.generalError}
+                    message={errMsg}
                     autoHideDuration={4000}
                 />
             );
         }
-        let successMsg = "";
-        if (this.props.location && this.props.location.state && this.props.location.state.flashMessage) {
-            successMsg = this.props.location.state.flashMessage;
-        }
 
-        if (this.state.operationSuccess && this.state.operationSuccess !== "") {
-            successMsg = this.state.operationSuccess;
-        }
 
         if (successMsg !== "") {
             return (
                 <FlashMessage
                     variant="success"
-                    message={this.props.location.state.flashMessage}
+                    message={successMsg}
                     autoHideDuration={4000}
                 />
             );

@@ -4,6 +4,9 @@ import './App.css';
 import Routes from './routes';
 import { blueGrey, indigo } from '@material-ui/core/colors';
 import { loadReCaptcha } from 'react-recaptcha-v3';
+import "@syncfusion/ej2-base/styles/material.css";
+import "@syncfusion/ej2-buttons/styles/material.css";
+import "@syncfusion/ej2-react-inputs/styles/material.css";
 
 const theme = createMuiTheme({
   palette: {

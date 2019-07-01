@@ -9,7 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import {withStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {Link, withRouter} from 'react-router-dom';
-import {Redirect} from "react-router-dom"
+import {Redirect} from "react-router-dom";
 import {getValidationErrorText, isFieldInvalid} from "../components/ErrorsProcessor";
 import CircularProgress from "@material-ui/core/CircularProgress/CircularProgress";
 import Recaptcha from "../components/Recaptcha";
@@ -43,7 +43,7 @@ class Registration extends Form {
 
     render() {
         if (this.state.operationSuccess !== '') {
-            return <Redirect to={{pathname: '/signin', state: {flashMessage: this.state.operationSuccess}}}/>;
+            return <Redirect to={{pathname: '/signin', state: {flashMessage:{message: this.state.operationSuccess, isError: false}}}}/>;
         }
         const {classes} = this.props;
         const {email, fullname, password, rpassword} = this.state.form;

@@ -1,4 +1,4 @@
-import React,  { Component } from 'react';
+import React, {Component} from 'react';
 import clsx from 'clsx';
 import {withStyles} from '@material-ui/core/styles';
 import {blueGrey} from '@material-ui/core/colors';
@@ -19,12 +19,10 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import {mainListItems, secondaryListItems} from '../components/ListItems';
-import Orders from '../components/Orders';
 import {withRouter} from 'react-router-dom';
-
-import CKEditor from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-//import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
+import Mce from "../components/Mce";
+import FileUpload from "../components/FileUpload";
+import {Preview} from "../components/Preview";
 
 function MadeWithLove() {
     return (
@@ -123,7 +121,7 @@ const styles = theme => ({
 class Main extends Component {
     constructor(props) {
         super(props);
-        this.state = {open: true};
+        this.state = {open: false};
     }
 
     setOpen(isOpen) {
@@ -139,29 +137,8 @@ class Main extends Component {
     };
 
     render() {
-        const { classes } = this.props;
-        const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+        const {classes} = this.props;
         const open = this.state.open;
-        const editorConfig = {
-            toolbar: [
-                'heading',
-                'bold', 'italic', 'underline', 'strikethrough',
-                'link',
-                'alignment:left', 'alignment:center', 'alignment:right', '|',
-                'numberedList', 'bulletedList', '|',
-                'ckfinder',
-                'imageUpload',
-                'insertTable', '|',
-                'undo',
-                'redo',
-                'blockQuote'
-            ],
-            //plugins: [ CKFinder],
-            ckfinder: {
-                // Upload the images to the server using the CKFinder QuickUpload command.
-                uploadUrl: 'https://example.com/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images&responseType=json',
-            }
-        };
         return (
             <div className={classes.root}>
                 <CssBaseline/>
@@ -207,34 +184,11 @@ class Main extends Component {
                     <div className={classes.appBarSpacer}/>
                     <Container maxWidth="lg" className={classes.container}>
                         <Grid container spacing={3}>
-                            {/* Chart */}
                             <Grid item xs={12}>
-                                <Paper className={fixedHeightPaper}>
-                                    <CKEditor
-                                        editor={ ClassicEditor }
-                                        data="<p>Hello from CKEditor 5!</p>"
-                                        config={editorConfig}
-                                        onInit={ editor => {
-                                            // You can store the "editor" and use when it is needed.
-                                            console.log( 'Editor is ready to use!', editor );
-                                        } }
-                                        onChange={ ( event, editor ) => {
-                                            const data = editor.getData();
-                                            console.log( { event, editor, data } );
-                                        } }
-                                        onBlur={ editor => {
-                                            console.log( 'Blur.', editor );
-                                        } }
-                                        onFocus={ editor => {
-                                            console.log( 'Focus.', editor );
-                                        } }
-                                    />
-                                </Paper>
-                            </Grid>
-                            {/* Recent Orders */}
-                            <Grid item xs={12}>
-                                <Paper className={classes.paper}>
-                                    <Orders/>
+                                <Paper>
+                                    <FileUpload />
+                                    <Preview />
+                                    <Mce name={"tata"} />
                                 </Paper>
                             </Grid>
                         </Grid>
