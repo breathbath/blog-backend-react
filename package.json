@@ -15,7 +15,7 @@
     "react-material-ui-form-validator": "^2.0.9",
     "react-recaptcha-v3": "^1.1.0",
     "react-router-dom": "^5.0.1",
-    "react-scripts": "3.0.1",
+    "react-scripts": "5.0.1",
     "recharts": "^1.6.2"
   },
   "scripts": {
